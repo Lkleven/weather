@@ -1,3 +1,18 @@
+# Weather
+Simple application that displays weather from a list of locations. Currently, weather data includes temperature, wind and moisture.
+
+## Location lookup
+When a city or location is added to the weather list. The locations coordinates are fetched from Kartverkets [open api](https://ws.geonorge.no/adresser/v1/#/).
+These coordinates are then used to fetch weather data from [Metrologisk Institutt](https://api.met.no/)
+
+
+## Known issues
+**missing icons**
+Some symbol_codes doesn't have a corresponding weather emoji. As of now, unkown icons are displayed with a robot (🤖)
+
+**first match**
+When adding a city, first result in the response is used. Ideally, a user would be represtented a shortlist of top results with additional data and then pick from there.
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
