@@ -17,16 +17,20 @@ const Symbol = ({ symbolCode }) => (
     </SymbolWrapper>
 );
 
+const Temp = ({ temp }) => (
+    <Temperature temp={temp}>
+        <IoMdThermometer />
+        {temp}°
+    </Temperature>
+);
+
 const Today = ({ symbolCode, details }) =>
     <TodayWrapper>
         <Day>I dag</Day>
         <WeatherInfo>
             <MainInfo>
                 <Symbol symbolCode={symbolCode} />
-                <Temperature temp={details.air_temperature}>
-                    <IoMdThermometer />
-                    {details.air_temperature}°
-                </Temperature>
+                <Temp temp={details.air_temperature} />
             </MainInfo>
             <SecondaryInfo>
                 <div>
@@ -67,10 +71,7 @@ const UpcomingWeather = ({ timeseries }) =>
                             <Symbol symbolCode={symbolCode}></Symbol>
                         </td>
                         <td>
-                            <Temperature temp={details.air_temperature}>
-                                <IoMdThermometer />
-                                {details.air_temperature}°
-                    </Temperature>
+                            <Temp temp={details.air_temperature} />
                         </td>
                         <td>
                             <Wind
@@ -81,13 +82,12 @@ const UpcomingWeather = ({ timeseries }) =>
                         <td>
                             <ImMeter />
                             {details.relative_humidity}%
-                </td>
+                        </td>
                     </tr>
                 );
             })}
         </tbody>
     </Table>
-
 
 const CityCard = ({ name, today, upcoming }) => (
     <Card>
