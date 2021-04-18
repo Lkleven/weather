@@ -25,6 +25,10 @@ export const symbols = {
         text: 'Klar himmel',
         emoji: '🌤️',
     },
+    clearsky_night: {
+        text: 'Klar himmel',
+        emoji: '🌤️',
+    },
     partlycloudy_day: {
         text: 'Delvis overskyet',
         emoji: '🌤️',
