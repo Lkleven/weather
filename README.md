@@ -13,6 +13,9 @@ Some symbol_codes doesn't have a corresponding weather emoji. As of now, unkown 
 **first match**
 When adding a city, first result in the response is used. Ideally, a user would be represtented a shortlist of top results with additional data and then pick from there.
 
+**naive names**
+Naively uses a users input as display name instead of actual name from coordinates lookup.
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
