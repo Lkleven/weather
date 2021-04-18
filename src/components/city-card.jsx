@@ -1,8 +1,8 @@
-import styled, {keyframes} from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { CgArrowLongDownL } from 'react-icons/cg';
 import { ImMeter } from 'react-icons/im';
 import { IoMdThermometer } from 'react-icons/io';
-import {symbols, days} from "./helpers/maps";
+import { symbols, days } from "./helpers/maps";
 
 const Wind = ({ speed, direction }) => (
     <WindWrapper>
@@ -17,12 +17,12 @@ const Symbol = ({ symbolCode }) => (
     </SymbolWrapper>
 );
 
-const Today = ({symbolCode, details}) =>
+const Today = ({ symbolCode, details }) =>
     <TodayWrapper>
         <Day>I dag</Day>
         <WeatherInfo>
             <MainInfo>
-                <Symbol symbolCode={symbolCode}/>
+                <Symbol symbolCode={symbolCode} />
                 <Temperature temp={details.air_temperature}>
                     <IoMdThermometer />
                     {details.air_temperature}°
@@ -46,13 +46,9 @@ const Today = ({symbolCode, details}) =>
         </WeatherInfo>
     </TodayWrapper>
 
-
-const CityCard = ({ name, today, timeseries }) => (
-    <Card>
-        <Title>{name}</Title>
-        <Today symbolCode={today.data.next_6_hours.summary.symbol_code} details={today.data.instant.details}></Today>
-        <Upcoming>
-            <tbody>
+const UpcomingWeather = ({ timeseries }) =>
+    <Table>
+        <tbody>
             {timeseries.map((entry) => {
                 const details = entry.data.instant.details;
                 const date = new Date(entry.time).getDay();
@@ -74,7 +70,7 @@ const CityCard = ({ name, today, timeseries }) => (
                             <Temperature temp={details.air_temperature}>
                                 <IoMdThermometer />
                                 {details.air_temperature}°
-                            </Temperature>
+                    </Temperature>
                         </td>
                         <td>
                             <Wind
@@ -85,12 +81,19 @@ const CityCard = ({ name, today, timeseries }) => (
                         <td>
                             <ImMeter />
                             {details.relative_humidity}%
-                        </td>
+                </td>
                     </tr>
                 );
             })}
-            </tbody>
-        </Upcoming>
+        </tbody>
+    </Table>
+
+
+const CityCard = ({ name, today, upcoming }) => (
+    <Card>
+        <Title>{name}</Title>
+        <Today symbolCode={today.data.next_6_hours.summary.symbol_code} details={today.data.instant.details}></Today>
+        <UpcomingWeather timeseries={upcoming} />
     </Card>
 );
 
@@ -120,7 +123,7 @@ const Title = styled.h2`
     margin: 0;
 `;
 
-const Upcoming = styled.table`
+const Table = styled.table`
     width: 100%;
 `;
 

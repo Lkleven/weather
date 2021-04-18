@@ -37,13 +37,25 @@ const getWeather = async ({ lat, lon }) => {
     });
 };
 
+const getCoords = async (city) => {
+  const url = `https://ws.geonorge.no/SKWS3Index/ssr/sok?navn=${city}&epsgKode=4230`
+  return await axios
+    .get(url)
+    .then((response) => {
+      const lon = response.data.stedsnavn[0].nord;
+      const lat = response.data.stedsnavn[0].aust;
+      return { lat, lon };
+    })
+    .catch((error) => console.error(`Could not get coordinates for ${city}. Url:${url}. Error: ${error}`));
+};
+
 const RenderCards = ({ weatherData }) => {
   return weatherData.map((location) => (
     <CityCard
       key={location.name}
       name={location.name}
       today={location.times[0]}
-      timeseries={location.times.slice(1)}
+      upcoming={location.times.slice(1)}
     />
   ));
 };
@@ -52,19 +64,6 @@ function App() {
   const [weatherData, setWeatherData] = useState([]);
   const [inputText, setInputText] = useState('');
   const [locations, setLocations] = useState(initialLocations);
-
-  const getCoords = async (city) => {
-    return await axios
-      .get(
-        `https://ws.geonorge.no/SKWS3Index/ssr/sok?navn=${city}&epsgKode=4230`
-      )
-      .then((response) => {
-        const lon = response.data.stedsnavn[0].nord;
-        const lat = response.data.stedsnavn[0].aust;
-        return { lat, lon };
-      })
-      .catch((error) => console.error('Error', error));
-  };
 
   const alreadyInList = (location) =>
     locations.some((loc) => loc.name === location.toLowerCase());
@@ -85,24 +84,31 @@ function App() {
 
   const addCity = async (e) => {
     e.preventDefault();
-    if (alreadyInList(inputText)) {
-      // TODO notify user
+    const name = inputText.toLowerCase();
+
+    if (alreadyInList(name)) {
+      window.alert(`Could not add ${inputText}, it is already added.`)
       return;
     }
-    setInputText('');
-    const coords = await getCoords(inputText);
-    const name = inputText.toLowerCase();
-    setLocations((prev) => [...prev, { name, ...coords }]);
+
+    const coords = await getCoords(name);
+    if (!coords) {
+      window.alert(`Could not find coordinates for ${inputText}. Are you sure it's spelled correctly? `)
+      return;
+    }
 
     const weather = await getWeather({ ...coords });
     const timeseries = weather.data.properties.timeseries;
     updateWeatherData(name, timeseries);
+    setLocations((prev) => [...prev, { name, ...coords }]);
+    setInputText('');
   };
 
   useEffect(() => {
     setWeatherData([]);
     const initializeData = async (city) => {
       const response = await getWeather({ ...city });
+      console.log(response)
       const timeseries = response.data.properties.timeseries;
       updateWeatherData(city.name, timeseries);
     };
