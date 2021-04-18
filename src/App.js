@@ -37,14 +37,15 @@ const getWeather = async ({ lat, lon }) => {
     });
 };
 
-const getCoords = async (city) => {
+const getLocationData = async (city) => {
   const url = `https://ws.geonorge.no/SKWS3Index/ssr/sok?navn=${city}&epsgKode=4230`
   return await axios
     .get(url)
     .then((response) => {
       const lon = response.data.stedsnavn[0].nord;
       const lat = response.data.stedsnavn[0].aust;
-      return { lat, lon };
+      const name = response.data.stedsnavn[0].skrivmaatenavn;
+      return { lat, lon, name };
     })
     .catch((error) => console.error(`Could not get coordinates for ${city}. Url:${url}. Error: ${error}`));
 };
@@ -91,16 +92,16 @@ function App() {
       return;
     }
 
-    const coords = await getCoords(name);
-    if (!coords) {
+    const data = await getLocationData(name);
+    if (!data) {
       window.alert(`Could not find coordinates for ${inputText}. Are you sure it's spelled correctly? `)
       return;
     }
 
-    const weather = await getWeather({ ...coords });
+    const weather = await getWeather({ ...data });
     const timeseries = weather.data.properties.timeseries;
     updateWeatherData(name, timeseries);
-    setLocations((prev) => [...prev, { name, ...coords }]);
+    setLocations((prev) => [...prev, { ...data }]);
     setInputText('');
   };
 
