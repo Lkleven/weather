@@ -42,10 +42,11 @@ const getLocationData = async (city) => {
   return await axios
     .get(url)
     .then((response) => {
-      const lon = response.data.stedsnavn[0].nord;
-      const lat = response.data.stedsnavn[0].aust;
-      const name = response.data.stedsnavn[0].skrivmaatenavn;
-      return { lat, lon, name };
+      // hacky convert string to number .toFixed converts to string with decimals
+      const lon = Number(response.data.stedsnavn[0].nord).toFixed(4);
+      const lat = Number(response.data.stedsnavn[0].aust).toFixed(4)
+      const name = response.data.stedsnavn[0].stedsnavn.toLowerCase();
+      return { name, lat: Number(lat), lon: Number(lon) };
     })
     .catch((error) => console.error(`Could not get coordinates for ${city}. Url:${url}. Error: ${error}`));
 };
@@ -109,7 +110,6 @@ function App() {
     setWeatherData([]);
     const initializeData = async (city) => {
       const response = await getWeather({ ...city });
-      console.log(response)
       const timeseries = response.data.properties.timeseries;
       updateWeatherData(city.name, timeseries);
     };
