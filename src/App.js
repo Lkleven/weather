@@ -27,9 +27,7 @@ const getWeather = async ({ lat, lon }) => {
 
   return await axios
     .get(url)
-    .then((response) => {
-      return response;
-    })
+    .then((response) => response)
     .catch((error) => {
       console.error(
         `Could not get weather data, url: ${url}. Error: ${error}`
@@ -39,15 +37,10 @@ const getWeather = async ({ lat, lon }) => {
 
 const getLocationData = async (city) => {
   const url = `https://ws.geonorge.no/SKWS3Index/ssr/sok?navn=${city}&epsgKode=4230`
+
   return await axios
     .get(url)
-    .then((response) => {
-      // hacky convert string to number .toFixed converts to string with decimals
-      const lon = Number(response.data.stedsnavn[0].nord).toFixed(4);
-      const lat = Number(response.data.stedsnavn[0].aust).toFixed(4)
-      const name = response.data.stedsnavn[0].stedsnavn.toLowerCase();
-      return { name, lat: Number(lat), lon: Number(lon) };
-    })
+    .then((response) => response)
     .catch((error) => console.error(`Could not get coordinates for ${city}. Url:${url}. Error: ${error}`));
 };
 
@@ -93,16 +86,21 @@ function App() {
       return;
     }
 
-    const data = await getLocationData(name);
-    if (!data) {
-      window.alert(`Could not find coordinates for ${inputText}. Are you sure it's spelled correctly? `)
+    const { data } = await getLocationData(name);
+    if (Number(data.totaltAntallTreff) === 0) {
+      window.alert(`Could not find any results for ${inputText}. Are you sure it's spelled correctly? `)
       return;
     }
+    // hacky convert string to number .toFixed converts to string with decimals
+    const lon = Number(data.stedsnavn[0].nord).toFixed(4);
+    const lat = Number(data.stedsnavn[0].aust).toFixed(4)
+    const dataName = data.stedsnavn[0].stedsnavn.toLowerCase();
 
-    const weather = await getWeather({ ...data });
+    const weather = await getWeather({ name: dataName, lon, lat });
     const timeseries = weather.data.properties.timeseries;
+
     updateWeatherData(name, timeseries);
-    setLocations((prev) => [...prev, { ...data }]);
+    setLocations((prev) => [...prev, { name: dataName, lon, lat }]);
     setInputText('');
   };
 
