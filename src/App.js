@@ -103,9 +103,12 @@ function App() {
       return;
     }
     // hacky convert string to number .toFixed converts to string with decimals
-    const lon = Number(data.stedsnavn[0].nord).toFixed(4);
-    const lat = Number(data.stedsnavn[0].aust).toFixed(4);
-    const dataName = data.stedsnavn[0].stedsnavn.toLowerCase();
+    const newLocation = Array.isArray(data.stedsnavn)
+      ? data.stedsnavn[0]
+      : data.stedsnavn;
+    const lon = Number(newLocation.nord).toFixed(4);
+    const lat = Number(newLocation.aust).toFixed(4);
+    const dataName = newLocation.stedsnavn.toLowerCase();
 
     const weather = await getWeather({ name: dataName, lon, lat });
     const timeseries = weather.data.properties.timeseries;
