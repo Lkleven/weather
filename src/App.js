@@ -46,13 +46,14 @@ const getLocationData = async (city) => {
     );
 };
 
-const RenderCards = ({ weatherData }) => {
+const RenderCards = ({ weatherData, deleteLocation }) => {
   return weatherData.map((location) => (
     <CityCard
       key={location.name}
       name={location.name}
       today={location.times[0]}
       upcoming={location.times.slice(1)}
+      deleteLocation={deleteLocation}
     />
   ));
 };
@@ -80,6 +81,9 @@ function App() {
       },
     ]);
   };
+
+  const deleteLocation = (name) =>
+    setLocations(locations.filter((loc) => loc.name !== name));
 
   const updateStorage = (locations) => {
     const storage = window.localStorage;
@@ -135,7 +139,10 @@ function App() {
     <Page>
       <Input text={inputText} setValue={setInputText} submit={addCity} />
       <CardsWrapper>
-        <RenderCards weatherData={weatherData} />
+        <RenderCards
+          weatherData={weatherData}
+          deleteLocation={deleteLocation}
+        />
       </CardsWrapper>
     </Page>
   );
