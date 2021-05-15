@@ -29,19 +29,21 @@ const getWeather = async ({ lat, lon }) => {
     .get(url)
     .then((response) => response)
     .catch((error) => {
-      console.error(
-        `Could not get weather data, url: ${url}. Error: ${error}`
-      );
+      console.error(`Could not get weather data, url: ${url}. Error: ${error}`);
     });
 };
 
 const getLocationData = async (city) => {
-  const url = `https://ws.geonorge.no/SKWS3Index/ssr/sok?navn=${city}&epsgKode=4230`
+  const url = `https://ws.geonorge.no/SKWS3Index/ssr/sok?navn=${city}&epsgKode=4230`;
 
   return await axios
     .get(url)
     .then((response) => response)
-    .catch((error) => console.error(`Could not get coordinates for ${city}. Url:${url}. Error: ${error}`));
+    .catch((error) =>
+      console.error(
+        `Could not get coordinates for ${city}. Url:${url}. Error: ${error}`
+      )
+    );
 };
 
 const RenderCards = ({ weatherData }) => {
@@ -58,7 +60,9 @@ const RenderCards = ({ weatherData }) => {
 function App() {
   const [weatherData, setWeatherData] = useState([]);
   const [inputText, setInputText] = useState('');
-  const [locations, setLocations] = useState(initialLocations);
+  const [locations, setLocations] = useState(
+    JSON.parse(window.localStorage.getItem('myLocations')) || initialLocations
+  );
 
   const alreadyInList = (location) =>
     locations.some((loc) => loc.name === location.toLowerCase());
@@ -66,7 +70,7 @@ function App() {
   const updateWeatherData = (name, timeseries) => {
     const daysAhead = 7;
     const timeOfDay = 12;
-    const filteredSeries = filterTimeSeries(timeseries, timeOfDay)
+    const filteredSeries = filterTimeSeries(timeseries, timeOfDay);
 
     setWeatherData((prev) => [
       ...prev,
@@ -77,23 +81,30 @@ function App() {
     ]);
   };
 
+  const updateStorage = (locations) => {
+    const storage = window.localStorage;
+    storage.setItem('myLocations', JSON.stringify(locations));
+  };
+
   const addCity = async (e) => {
     e.preventDefault();
     const name = inputText.toLowerCase();
 
     if (alreadyInList(name)) {
-      window.alert(`Could not add ${inputText}, it is already added.`)
+      window.alert(`Could not add ${inputText}, it is already added.`);
       return;
     }
 
     const { data } = await getLocationData(name);
     if (Number(data.totaltAntallTreff) === 0) {
-      window.alert(`Could not find any results for ${inputText}. Are you sure it's spelled correctly? `)
+      window.alert(
+        `Could not find any results for ${inputText}. Are you sure it's spelled correctly? `
+      );
       return;
     }
     // hacky convert string to number .toFixed converts to string with decimals
     const lon = Number(data.stedsnavn[0].nord).toFixed(4);
-    const lat = Number(data.stedsnavn[0].aust).toFixed(4)
+    const lat = Number(data.stedsnavn[0].aust).toFixed(4);
     const dataName = data.stedsnavn[0].stedsnavn.toLowerCase();
 
     const weather = await getWeather({ name: dataName, lon, lat });
@@ -111,10 +122,11 @@ function App() {
       const timeseries = response.data.properties.timeseries;
       updateWeatherData(city.name, timeseries);
     };
-    initialLocations.forEach((city) => {
+    locations.forEach((city) => {
       initializeData(city);
     });
-  }, []);
+    updateStorage(locations);
+  }, [locations]);
 
   return (
     <Page>
@@ -129,10 +141,10 @@ function App() {
 export default App;
 
 const Page = styled.div`
-    width: 100%;
+  width: 100%;
 `;
 
 const CardsWrapper = styled.div`
-    display: flex;
-    flex-wrap: wrap;
+  display: flex;
+  flex-wrap: wrap;
 `;
